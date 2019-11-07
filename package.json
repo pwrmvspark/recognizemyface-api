@@ -1,7 +1,7 @@
 {
   "name": "smartbrain",
   "version": "1.0.0",
-  "description": "",
+  "description": "API repo for recognizemyface app",
   "main": "index.js",
   "scripts": {
     "start": "nodemon server.js",
@@ -12,5 +12,14 @@
   "dependencies": {
     "express": "^4.17.1",
     "nodemon": "^1.19.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pwrmvspark/recognizemyface-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pwrmvspark/recognizemyface-api/issues"
+  },
+  "homepage": "https://github.com/pwrmvspark/recognizemyface-api#readme",
+  "devDependencies": {}
 }
