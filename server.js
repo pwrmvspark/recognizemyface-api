@@ -3,6 +3,23 @@ const bodyParser = require('body-parser')
 const bcrypt = require('bcrypt-nodejs')
 const cors = require('cors')
 const app = express()
+const knex = require('knex')
+
+const db  = knex({
+  client: 'pg',
+  connection: { 
+    host : '127.0.0.1',
+    user : '',
+    password : '',
+    database : 'recognizeMyFace'
+  }
+});
+
+db .select('*').from('users').then(data => {
+  console.log(data)
+})
+
+console.log(db.select('*').from('users'))
 
 app.use(bodyParser.json())
 app.use(cors())
@@ -35,7 +52,7 @@ app.get('/', (req, res) => {
 app.post('/signin', (req, res) => {
   if (req.body.email === database.users[0].email &&
       req.body.password === database.users[0].password) {
-    res.json('success') 
+      res.json(database.users[0]);
   } else {
     res.status(400).json('error logging in')
   }
@@ -43,34 +60,42 @@ app.post('/signin', (req, res) => {
 
 app.post('/register', (req,res) => {
   const { name, email, password } = req.body
-  bcrypt.hash(password, null, null, function(err, hash) {
-    console.log(hash)
-});
-  database.users.push({
-      id: '125',
-      name: name,
+  // bcrypt.hash(password, null, null, function(err, hash) {
+  //   console.log(hash)
+  // })
+
+  db('users')
+    .returning('*')
+    .insert({
       email: email,
-      entries: 0,
-      joined:   Date()
+      name: name,
+      joined: new Date()
+    }).then(user => {
+      res.json(user[0])
   })
-  res.json(database.users[database.users.length-1])
+  .catch(err => res.status(400).json('unable to register'))
+
 })
 
 app.get('/profile/:id', (req, res) => {
   const { id } = req.params
   let found = false
-  database.users.forEach(user => {
-    if (user.id === id) {
-      found = true
-      return res.json(user)
+
+  db.select('*').from('users').where({
+    id: id
+  })
+  .then(user => {
+    if (user.length) {
+      res.json(user[0])
+    } else {
+      res.status(400).json('Not found')
     }
   })
-  if (!found) {
-    res.status(400).json('not found')
-  }
-})
+    .catch(err => res.status(400).json('error getting user'))
+    // console.log(user[0])
+  })
 
-app.post('/image', (req, res) => {
+app.put('/image', (req, res) => {
   const { id } = req.body
   let found = false
   database.users.forEach(user => {
